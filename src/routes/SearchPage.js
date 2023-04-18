@@ -43,12 +43,17 @@ function SearchPage() {
             return(
               <div className='movie'> 
               {/* 키값을 넣어야함.  */}
-                <div className='movie__column-poster' onClick={()=>navigate
+                <div className='movies__searched' onClick={()=>navigate
                 (`/${movie.id}`)}>
-                  <img src={movieImageUrl} alt={movie.title} className='movie__poster' />
-                  <div className='search__content'>
-                    <h2 className='movie__title'>{movie.title || movie.name}</h2>
-                    <p>{movie.release_date ? movie.release_date : movie.first_air_date}</p>
+                  <img src={movieImageUrl} alt={movie.title} className='movie__bg' />
+                  <div className='movie-clearfix'>
+                  <div className='movie-wrap'>
+                    <img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={movie.title} className='movie__poster' />
+                    <div className='search-content'>
+                      <h2 className='movie__title'>{movie.title || movie.name}</h2>
+                      <p>{movie.release_date ? movie.release_date : movie.first_air_date}</p>
+                    </div>
+                  </div>
                   </div>
                 </div>
               </div>

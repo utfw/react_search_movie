@@ -1,15 +1,17 @@
 import axios from 'api/axios.js';
 import requests from 'api/requests';
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import 'styles/banner.css'
 
 function Banner() {
   const [movie, setMovie] = useState([]);
   const [isClicked, setIsClicked] = useState(false);
- 
+  const navigate = useNavigate();
   useEffect(()=>{
     fetchData();
+    console.log(movie.id);
   },[])
 
   const fetchData = async() =>{
@@ -37,7 +39,7 @@ function Banner() {
             <button className='banner__button play' onClick={() => setIsClicked(true)}>
               play
             </button>
-            <button className='banner__button info'>
+            <button className='banner__button info' onClick={()=>{navigate(`/${movie.id}`)}}>
               <div className='space'></div>More Information
             </button>
           </div>
