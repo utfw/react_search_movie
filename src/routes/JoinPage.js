@@ -4,13 +4,14 @@ import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { faChevronRight, faTriangleCircleSquare, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import Banner from 'components/Banner';
 import Row from 'components/Row';
 import axios from 'api/axios.js';
-import { doc, setDoc } from 'firebase/firestore';
-import { v4 as uuidv4 } from 'uuid';
+import { collection, doc, getDocs, query, setDoc } from 'firebase/firestore';
+import { v4 as uuid } from 'uuid';
+import { defaultFace } from 'default';
 
 function JoinPage() {
   const [id, setId] = useState("");
@@ -41,13 +42,20 @@ function JoinPage() {
 
   const onSubmit = useCallback(async(e) =>{
     e.preventDefault();
+    const q = query(collection(db, `${auth.currentUser.uid}`));
+    const docRef = await getDocs(q);
+    const profileNum = docRef.docs.length; // 갯수파악
+    console.log(docRef);
+    const fileName = uuid();
     try {
+      const doc = await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
+        id:profileNum,
+        displayname:"임시이름",
+        fileName:fileName,
+        fileUrl:defaultFace,
+        date:Date.now()
+      });
         const join = await createUserWithEmailAndPassword(auth, id, pw);
-        const doc = await setDoc(doc(db,`${auth.currentUser.uid}`,`${uuidv4}`),{
-          name:"profile",
-          photo:"",
-          adult:""
-        })
     } catch (error) {
       console.log(error);
     }

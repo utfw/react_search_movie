@@ -15,6 +15,7 @@ import 'styles/app.css'
 import { onAuthStateChanged } from 'firebase/auth';
 import LoginPage from 'routes/LoginPage';
 
+
 const Layout = () => {
   return (
     <div>
@@ -26,8 +27,8 @@ const Layout = () => {
 } //레이아웃을 함수형 컴포넌트. 아웃렛에 자식경로 요소가 들어간다. 
 
 function App() {
-  const [login, setLogin] = useState("");
-  const [userInfo, setUserInfo] = useState(auth.currentUser)
+  const [login, setLogin] = useState(auth.currentUser);
+  const [userInfo, setUserInfo] = useState(auth.currentUser);
   useEffect(() =>{
     onAuthStateChanged(auth, (user) =>{
     if(user) {
@@ -35,18 +36,20 @@ function App() {
       setUserInfo(user);
     } else{
       setLogin(false);
+      setUserInfo(false);
     }
     })
-  },[]);
-  
+    console.log(login)
+  },[login]);
+
   return (
     <div className="app">
       <Routes>
         <Route path='/' element={<Layout />}>
-          {login ? (
-          <Route index element={<MainPage />}></Route>
-          ):(
+          {!login ? (
           <Route index element={<JoinPage></JoinPage>}/>
+          ):(
+          <Route index element={<MainPage />}></Route>
           )} 
           {/* index = 부모주소가져옴 */}
           <Route path=':movieId' element={<DetailPage />}></Route>
