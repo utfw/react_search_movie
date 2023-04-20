@@ -1,9 +1,11 @@
 import requests from 'api/requests'
 import Banner from 'components/Banner'
 import Row from 'components/Row'
+import { auth } from '../firebase'
 import React from 'react'
 
 function MainPage() {
+
   return (
     <div>
     <Banner />

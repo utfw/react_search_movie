@@ -1,21 +1,40 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { auth, db, storage } from '../firebase'
 import { signOut } from 'firebase/auth'
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { faCaretDown, faPen, faPencil, faPlus } from '@fortawesome/free-solid-svg-icons'
-import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore'
+import { collection, doc, getDocs, orderBy, query, setDoc, where } from 'firebase/firestore'
 import { v4 as uuid } from 'uuid'
 import { getDownloadURL, getStorage, ref, uploadString } from "firebase/storage";
+import { defaultFace } from 'default'
 
 function ProfilePage() {
   const navigate = useNavigate();
   const [edit, setEdit] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [newFace, setNewFace] = useState("https://occ-0-4796-988.1.nflxso.net/dnm/api/v6/K6hjPJd6cR6FpVELC5Pd6ovHRSk/AAAABbme8JMz4rEKFJhtzpOKWFJ_6qX-0y5wwWyYvBhWS0VKFLa289dZ5zvRBggmFVWVPL2AAYE8xevD4jjLZjWumNo.png?r=a41");
+  const [newFace, setNewFace] = useState(defaultFace);
+  const [newName, setNewName] = useState("");
   const [faceBefore, setFaceBefore] = useState(""); 
+  const [nameBefore, setNameBefore] = useState("");
+  const [userProfiles, setUserProfiles] = useState([]);
+  let profileInfo = {};
+  const [id, setId] = useState(0);
+
+  useEffect(()=>{
+    getProfiles();
+  },[]);
   
+  const getProfiles = async() => {
+    const q = await query(collection(db, `${auth.currentUser.uid}`));
+    const querySnapshot = await getDocs(q);
+    await setUserProfiles(querySnapshot.docs);
+    // console.log(querySnapshot.docs);
+    setId(userProfiles.length-1);
+    console.log(id);
+  }
+
   const onLogoutClick = async(e) =>{
     await auth.signOut();
     navigate('/');
@@ -33,71 +52,106 @@ function ProfilePage() {
     }
     reader.readAsDataURL(theFile);
   }
-
+  const onChangeName = useCallback((e) =>{
+    const {target:{value}} = e;
+    setNewName(value);
+  },[]);
+  
   const onSubmit = async(e) =>{
     e.preventDefault();
-    let faceUrl ="";
-    const fileName = uuid();
+    profileInfo = userProfiles[id].data();
+    // 이게 새로운 프로필인지 기존의 프로필인지 조건을 따지기 귀찮으니 차라리 접근을 제한.
+    console.log(id);
+    let fileUrl = profileInfo.fileUrl;
+    const fileName = id; //내가 클릭한 애가 누군지 어떻게 아는가. 
     const storageRef = ref(storage, `${auth.currentUser.uid}/profile/${fileName}`);
-    try {
-      const upload = await uploadString(storageRef, newFace, 'data_url');
-      faceUrl = await getDownloadURL(ref(storage, upload.ref));
-      console.log(faceUrl);
-    } catch (error) {
-      console.log(error);
+    if(faceBefore !== newFace){ //이미지 변경이 있을 시 사진 업로드 진행
+      try {
+        const upload = await uploadString(storageRef, newFace, 'data_url');
+        fileUrl = await getDownloadURL(ref(storage, upload.ref));
+        setNewFace(fileUrl);
+      } catch (error) {
+        console.log(error);
+      }
     }
     try { // 프로필 정보 문서 업로드
       await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
-        displayname:"",
+        id: id,
+        displayname:newName,
         fileName:fileName,
-        fileUrl:faceUrl,
-        date: Date.now()
+        fileUrl:fileUrl
       })
     } catch (error) {
       console.log(error)
     }
-
-    console.log(`submit done`)
+    console.log(`${id} submit done`);
+    setIsEditing(prev=>!prev);
+    setEdit(prev=>!prev);
   }
   const onAddProfile = async(e) => {
-    // const docRef = await doc(db,`${auth.currentUser.uid}`,`*`);
-    const q = await query(collection(db, `${auth.currentUser.uid}`));
+    const q = query(collection(db, `${auth.currentUser.uid}`));
     const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) =>{
-      console.log(doc);
-    })
-    console.log(querySnapshot.docs)
+    await setUserProfiles(querySnapshot.docs);
+    const length = userProfiles.length;
+    console.log(length);
+    if(length < 6){
+      // add profile
+      try {
+        setId(length);
+        await setDoc(doc(db,`${auth.currentUser.uid}`,`${id}`),{
+          id: id,
+          displayname:newName,
+          fileName:id,
+          fileUrl:defaultFace,
+          date:Date.now()
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    } else {
+      console.log('프로필 최대상한도달')
+    }
   }
 
+  async function onEditProfile(idx){
+    console.log(idx);
+    setNameBefore(newName);
+    setFaceBefore(newFace);
+    setId(idx);
+    profileInfo = userProfiles[idx].data();
+    // console.log(profileInfo);
+    await setNewName(profileInfo.displayname);
+    await setNewFace(profileInfo.fileUrl);
+    setIsEditing(true);
+    console.log(id);
+  } 
   return (
     <ProfileContainer>
       <h2 className='blind'>프로필 관리</h2>
       {isEditing ? (
-        <EditProfile>
+        // 프로필 생성 / 설정 변경
+        <EditProfile> 
           <form className='profile__form-edit' onSubmit={onSubmit}>
             <legend>프로필 변경</legend>
             <fieldset>
               <div className='form__top-wrap'>
                 <div className='form__face'>
                   <div className='face-wrap'>
-
                   <img src={newFace} alt='' className='face'></img>
                   <input type='file' onChange={onChangeFace} id='input_face_change' accept="image/*"></input>
                   <label htmlFor='input_face_change' className='face__btn-edit'>
                     <FontAwesomeIcon icon={faPencil} />
                   </label>
-
                   </div>
                 </div>
                 <div className='form__content'>
                   <div className='form__content-top'>
-                    <input type='text' value={`이름이 들어가야함.`}></input>
+                    <input type='text' onChange={onChangeName} value={newName} required></input>
                     <dl>
                       <dt>언어</dt>
                       <dd>
                       <ul className='lang__list'>
                       <li>한국어<FontAwesomeIcon icon={faCaretDown} /></li>
-                   
                       <li>
                       </li>  
                       </ul></dd>
@@ -128,7 +182,7 @@ function ProfilePage() {
               </div>
               <div className='form__btns-wrap'>
               <button type='submit' className='form__btn-confirm'>저장</button>
-              <button type='button' className='form__btn-cancel'>취소</button>
+              <button type='button' className='form__btn-cancel' onClick={()=>{setIsEditing(prev=>!prev);setEdit(prev=>!prev)}}>취소</button>
               <button type='button' className='form__btn-delete'>프로필 삭제</button>
               </div>
             </fieldset>
@@ -138,27 +192,31 @@ function ProfilePage() {
         <Profiles>
         <p className='profile__text'>Netflix를 시청할 프로필을 선택하세요.</p>
         <ul className='profile-wrap'>
-          <li className='profile'>
-            {edit && (
-            <div className='edit__btn' onClick={()=>{setIsEditing(true)}}>
-              <span >
-                <FontAwesomeIcon icon={faPen}></FontAwesomeIcon>
-              </span>
-            </div>
-            )}
-            <img src='https://occ-0-4796-988.1.nflxso.net/dnm/api/v6/K6hjPJd6cR6FpVELC5Pd6ovHRSk/AAAABbme8JMz4rEKFJhtzpOKWFJ_6qX-0y5wwWyYvBhWS0VKFLa289dZ5zvRBggmFVWVPL2AAYE8xevD4jjLZjWumNo.png?r=a41' alt='' />
-          </li>
-          <li className='profile'>
-            <img src='https://occ-0-4796-988.1.nflxso.net/dnm/api/v6/K6hjPJd6cR6FpVELC5Pd6ovHRSk/AAAABbme8JMz4rEKFJhtzpOKWFJ_6qX-0y5wwWyYvBhWS0VKFLa289dZ5zvRBggmFVWVPL2AAYE8xevD4jjLZjWumNo.png?r=a41' alt='' />
-          </li>
-          <li>
+          {userProfiles.map((profile,idx) =>{
+              return(
+              <li className='profile' key={idx} onClick={()=>onEditProfile(idx)}>
+                {edit && (
+                  <div className='edit__btn' >
+                    <span >
+                      <FontAwesomeIcon icon={faPen}></FontAwesomeIcon>
+                    </span>
+                  </div>
+              )}
+                <img src={`${profile.data().fileUrl}`} alt=''></img>
+              </li>
+              )
+            })
+          }
+          {id < 5 &&(
+            <li>
             <AddProfile>
               <div className='icon-wrap' onClick={onAddProfile}>
                 <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
               </div>
               <p>프로필 추가</p>
             </AddProfile>
-          </li>
+            </li>
+          )}
         </ul>
         <button type='button' onClick={()=>{setEdit(prev=>!prev)}} className='profile__btn-toggle'>프로필 관리</button>
         <button onClick={onLogoutClick} className='logout'>로그아웃</button>
@@ -305,7 +363,6 @@ height:100%;
       position:relative;
       width:80px;
       height:80px;
-      border:1px solid red;
       border-radius:8px;
       margin-right:20px;
       box-sizing:border-box;
@@ -336,6 +393,8 @@ height:100%;
       }
       img{
         width:100%;
+        height:100%;
+        object-fit:cover;
       }
     }
   }
