@@ -1,7 +1,7 @@
 import requests from 'api/requests'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { auth, db } from '../firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
@@ -42,20 +42,31 @@ function JoinPage() {
 
   const onSubmit = useCallback(async(e) =>{
     e.preventDefault();
+    try {
+      const join = await createUserWithEmailAndPassword(auth, id, pw);
+    } catch (error) {
+      console.log(error)
+    }
     const q = query(collection(db, `${auth.currentUser.uid}`));
     const docRef = await getDocs(q);
     const profileNum = docRef.docs.length; // 갯수파악
     console.log(docRef);
     const fileName = uuid();
     try {
-      const doc = await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
-        id:profileNum,
-        displayname:"임시이름",
+      const init = await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
+        displayname:`name_${uuid()}`,
         fileName:fileName,
         fileUrl:defaultFace,
         date:Date.now()
       });
-        const join = await createUserWithEmailAndPassword(auth, id, pw);
+    } catch (error) {
+      console.log(error);
+    }
+    try {
+      const update = await updateProfile(auth.currentUser,{
+        displayName:`name_${uuid()}`, photoURL:defaultFace
+      });
+      console.log(auth.currentUser);
     } catch (error) {
       console.log(error);
     }
@@ -112,10 +123,7 @@ box-sizing:border-box;
     transform:translateY(50%);
     ul{
       display:flex;
-
       flex-wrap:wrap;
-
-
       li{
         width:10%;
         min-width:92px;

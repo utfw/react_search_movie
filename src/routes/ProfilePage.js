@@ -1,13 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { auth, db, storage } from '../firebase'
-import { signOut } from 'firebase/auth'
-import React, { useCallback, useEffect, useState } from 'react'
+import { signOut, updateProfile } from 'firebase/auth'
+import React, { Children, useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { faCaretDown, faPen, faPencil, faPlus } from '@fortawesome/free-solid-svg-icons'
-import { collection, doc, getDocs, orderBy, query, setDoc, where } from 'firebase/firestore'
+import { collection, deleteDoc, doc, getDocs, query, setDoc } from 'firebase/firestore'
 import { v4 as uuid } from 'uuid'
-import { getDownloadURL, getStorage, ref, uploadString } from "firebase/storage";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { defaultFace } from 'default'
 
 function ProfilePage() {
@@ -20,26 +20,25 @@ function ProfilePage() {
   const [nameBefore, setNameBefore] = useState("");
   const [userProfiles, setUserProfiles] = useState([]);
   let profileInfo = {};
-  const [id, setId] = useState(0);
+  let docSnapshot = [];
+  const [fileName, setFileName] = useState(""); // 사실상 문서 id
 
   useEffect(()=>{
-    getProfiles();
-  },[]);
-  
+    getProfiles()    
+  },[])
+
   const getProfiles = async() => {
-    const q = await query(collection(db, `${auth.currentUser.uid}`));
+    const q = query(collection(db, `${auth.currentUser.uid}`));
     const querySnapshot = await getDocs(q);
-    await setUserProfiles(querySnapshot.docs);
-    // console.log(querySnapshot.docs);
-    setId(userProfiles.length-1);
-    console.log(id);
+    docSnapshot = querySnapshot.docs;
+    setUserProfiles(docSnapshot);
+
+  }
+  if(userProfiles==""){
+    console.log(`페이지 로딩 시 프로필 불러오기`);
+    getProfiles();
   }
 
-  const onLogoutClick = async(e) =>{
-    await auth.signOut();
-    navigate('/');
-  }
-  
   const onChangeFace = (e) =>{
     setFaceBefore(newFace);
     const {target:{files}} = e;
@@ -59,72 +58,112 @@ function ProfilePage() {
   
   const onSubmit = async(e) =>{
     e.preventDefault();
-    profileInfo = userProfiles[id].data();
     // 이게 새로운 프로필인지 기존의 프로필인지 조건을 따지기 귀찮으니 차라리 접근을 제한.
-    console.log(id);
-    let fileUrl = profileInfo.fileUrl;
-    const fileName = id; //내가 클릭한 애가 누군지 어떻게 아는가. 
+    let fileUrl;
     const storageRef = ref(storage, `${auth.currentUser.uid}/profile/${fileName}`);
     if(faceBefore !== newFace){ //이미지 변경이 있을 시 사진 업로드 진행
       try {
         const upload = await uploadString(storageRef, newFace, 'data_url');
         fileUrl = await getDownloadURL(ref(storage, upload.ref));
-        setNewFace(fileUrl);
+        await setNewFace(fileUrl);
       } catch (error) {
         console.log(error);
       }
     }
-    try { // 프로필 정보 문서 업로드
-      await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
-        id: id,
-        displayname:newName,
-        fileName:fileName,
-        fileUrl:fileUrl
-      })
-    } catch (error) {
-      console.log(error)
+    if(nameBefore !== newName){ // 프로필 정보 문서 업로드
+      try { 
+        await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
+          displayname:newName,
+          fileName:fileName,
+          fileUrl:fileUrl
+        })
+      } catch (error) {
+        console.log(error)
+      }
     }
-    console.log(`${id} submit done`);
+    console.log(fileUrl)
+    console.log(`${newName} submit done`);
     setIsEditing(prev=>!prev);
     setEdit(prev=>!prev);
+    getProfiles();
   }
+  async function onEditProfile(idx){
+    profileInfo = await userProfiles[idx].data();
+    setNameBefore(newName);
+    setFaceBefore(newFace);
+    setFileName(profileInfo.fileName);
+
+    await setNewName(profileInfo.displayname);
+    await setNewFace(profileInfo.fileUrl);
+    setIsEditing(true);
+    console.log(profileInfo.fileName);
+  } 
+
   const onAddProfile = async(e) => {
     const q = query(collection(db, `${auth.currentUser.uid}`));
     const querySnapshot = await getDocs(q);
     await setUserProfiles(querySnapshot.docs);
     const length = userProfiles.length;
-    console.log(length);
+    const fileName = uuid();
     if(length < 6){
       // add profile
       try {
-        setId(length);
-        await setDoc(doc(db,`${auth.currentUser.uid}`,`${id}`),{
-          id: id,
-          displayname:newName,
-          fileName:id,
+        await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
+          displayname:`name_${uuid()}`,
+          fileName:fileName,
           fileUrl:defaultFace,
           date:Date.now()
         })
+        console.log(`문서업로드`);
+        getProfiles();
       } catch (error) {
         console.log(error)
       }
     } else {
-      console.log('프로필 최대상한도달')
+      console.log('프로필 최대상한도달');
     }
   }
 
-  async function onEditProfile(idx){
-    console.log(idx);
-    setNameBefore(newName);
-    setFaceBefore(newFace);
-    setId(idx);
+  const onDeleteProfile = async() =>{
+    console.log(userProfiles.length);
+    console.log(profileInfo)
+    try {
+      if(userProfiles.length-1!==0){
+      await deleteDoc(doc(db, `${auth.currentUser.uid}`, `${fileName}`));
+      console.log(`프로필삭제`)
+    } else console.log(`최소 1개의 프로필은 존재해야함`);
+    } catch (error) {
+      console.log(error)
+    }
+    setIsEditing(prev=>!prev);
+    setEdit(prev=>!prev);
+    getProfiles();
+  }
+
+  const onLogoutClick = async(e) =>{
+    await auth.signOut();
+    navigate('/');
+  }
+
+  async function onSelectProfile(idx) {
+    console.log(idx)
     profileInfo = userProfiles[idx].data();
-    // console.log(profileInfo);
-    await setNewName(profileInfo.displayname);
-    await setNewFace(profileInfo.fileUrl);
-    setIsEditing(true);
-    console.log(id);
-  } 
+    const profile_list = document.querySelectorAll("li.profile");
+    // profile_list.forEach((el,i)=>{
+    //   el.style.border = `2px solid #111`;
+    // })
+    // profile_list[idx].style.border = `2px solid var(--deepred)`;
+    try {
+      const update = await updateProfile(auth.currentUser,{
+        displayName:profileInfo.displayname, photoURL:profileInfo.fileUrl,
+      });
+      console.log(auth.currentUser);
+      console.log(`프로필 변경완료`);
+    } catch (error) {
+      console.log(error);
+    }
+    navigate(`/`);
+  }
   return (
     <ProfileContainer>
       <h2 className='blind'>프로필 관리</h2>
@@ -183,7 +222,7 @@ function ProfilePage() {
               <div className='form__btns-wrap'>
               <button type='submit' className='form__btn-confirm'>저장</button>
               <button type='button' className='form__btn-cancel' onClick={()=>{setIsEditing(prev=>!prev);setEdit(prev=>!prev)}}>취소</button>
-              <button type='button' className='form__btn-delete'>프로필 삭제</button>
+              <button type='button' className='form__btn-delete' onClick={onDeleteProfile}>프로필 삭제</button>
               </div>
             </fieldset>
           </form>
@@ -194,9 +233,9 @@ function ProfilePage() {
         <ul className='profile-wrap'>
           {userProfiles.map((profile,idx) =>{
               return(
-              <li className='profile' key={idx} onClick={()=>onEditProfile(idx)}>
+              <li className='profile' key={idx} onClick={()=>onSelectProfile(idx)}>
                 {edit && (
-                  <div className='edit__btn' >
+                  <div className='edit__btn' onClick={()=>onEditProfile(idx)}>
                     <span >
                       <FontAwesomeIcon icon={faPen}></FontAwesomeIcon>
                     </span>
@@ -207,7 +246,7 @@ function ProfilePage() {
               )
             })
           }
-          {id < 5 &&(
+          {userProfiles.length <6 &&(
             <li>
             <AddProfile>
               <div className='icon-wrap' onClick={onAddProfile}>
@@ -363,9 +402,15 @@ height:100%;
       position:relative;
       width:80px;
       height:80px;
+      border: 2px solid #111;
       border-radius:8px;
       margin-right:20px;
       box-sizing:border-box;
+      cursor:pointer;
+      filter:brightness(.95) grayscale(0.1);
+      &:hover{
+        filter:brightness(1.05);
+      }
       &:last-of-type{
         margin-right:0;
       }

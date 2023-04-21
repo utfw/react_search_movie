@@ -13,5 +13,5 @@
 .movies__searched:hover .search-content{opacity: 1;}
 .search-content{opacity: 0;height: 100%;text-align: left;color: #fff;margin-left: 20px;padding: 32px;box-sizing: border-box;transition: opacity .3s linear .2s;}
 .movie__title{font-size: 32px;padding: 0;margin-bottom: 4px;}
-
+.movie__score{position: absolute;right: 24px;bottom: 24px;font-size: 80px;color: rgba(255, 255, 255, .1);}
 .no-results{display: flex;justify-content: center;align-content: center;height: 100%;padding: 8rem;color: #c5c5c5;}

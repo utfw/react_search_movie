@@ -33,31 +33,37 @@ function DetailPage() {
   return (
     <>
     <Btn__nav onClick={() =>{navigate(-1)}}><FontAwesomeIcon icon={faArrowLeft}></FontAwesomeIcon></Btn__nav>
-    <MovieDetail>
+    <MovieDetail style={{backgroundImage:`url(https://image.tmdb.org/t/p/w500${movie.backdrop_path})`, backgroundSize:`cover`,backgroundRepeat:`no-repeat`}}>
+      <MoviePoster><img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={movie.title || movie.name || movie.original_name} /></MoviePoster>
       <div className='section__inner'>
       <div>
-       <h2>{movie.title || movie.name || movie.original_name}</h2>
-      <MovieInfo>
-        <li>{movie.release_date}</li>
-        <li>{`${movie.runtime}분`}</li>
-        <li>
-        <ul className='genres'>
-        {genres.map((item, index) =>{
-          return(
-            <li className='genres'>{item.name}</li>
-          )
-        })}
-        </ul>
-        </li>
-      </MovieInfo>
-      <MovieDescription> <p>{movie?.overview}</p></MovieDescription>
+        <h2>{movie.title || movie.name || movie.original_name}</h2>
+        <MovieInfo>
+          <li>{movie.release_date}</li>
+          <li>{`${movie.runtime}분`}</li>
+          <li>
+          <ul className='genres'>
+          {genres.map((item, index) =>{
+            return(
+              <li className='genres'>{item.name}</li>
+            )
+          })}
+          </ul>
+          </li>
+        </MovieInfo>
+        <MovieDescription>
+          <p>{movie?.overview}</p>
+        </MovieDescription>
       </div>
       </div>
-      <img className='modal__poster-img' src={`https://image.tmdb.org/t/p/w500${movie.backdrop_path}`} alt={movie.title || movie.name || movie.original_name} />
+
     </MovieDetail>
+
     </>
   )
 }
+
+
 const Btn__nav = styled.div`
   position:fixed;
   display:flex;
@@ -75,16 +81,33 @@ const Btn__nav = styled.div`
     color:#fff;
   }
 `
-const MovieDescription =styled.div`
+const MovieDetail = styled.section`
+  display:flex;
+  position:relative;
+  justify-content:space-between;
+  align-items:flex-end;
   width:100%;
-  margin-top:20px;
-  text-align:justify;
+  min-height:100vh;
+  padding:80px 50px 80px 120px;
+  box-sizing:border-box;
+  color: #fff;
+  .section__inner{
+    width:100%;
+    max-width:860px;
+    padding: 40px 32px 40px;
+    box-sizing:border-box;
+    background: #111;
+    h2{
+      padding-left:0;
+      font-size:28px;
+    }
+  }
 `
 const MovieInfo = styled.ul`
   display:flex;
   align-items:flex-end;
   list-style:none;
-  margin-top:4px;
+  margin-top:10px;
   padding-left:0;
   font-size:14px;
   >li{
@@ -101,24 +124,14 @@ const MovieInfo = styled.ul`
     }
   }
 `
-const MovieDetail = styled.section`
-  display:flex;
-  flex-direction:column-reverse;
-  position: relative;
-  color: #fff;
-  min-height:calc(100vh - 228px);
-  padding-top:70px;
-  .section__inner{
-    width:100%;
-    padding: 20px 16px 0;
-    box-sizing:border-box;
-    background: linear-gradient(to bottom, transparent 10%, #111 46%, #111 60%);
-    margin-bottom:40px;
-    h2{
-      padding-left:0;
-      font-size:28px;
-    }
-  }
-
+const MovieDescription =styled.div`
+  width:100%;
+  margin-top:40px;
+  text-align:justify;
+  line-height:1.5;
+  font-size: 18px;
+`
+const MoviePoster = styled.div`
+height:50%;
 `
 export default DetailPage

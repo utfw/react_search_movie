@@ -1,3 +1,5 @@
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'api/axios.js';
 import requests from 'api/requests';
 import React, { useEffect, useState } from 'react'
@@ -61,6 +63,7 @@ function Banner() {
           frameborder='0'
           allow='autoplay; fullscreen'>
           </Iframe>
+          <div className='banner__btn-play' onClick={() => {setIsClicked(false)}} title='동영상 닫기'><FontAwesomeIcon icon={faXmark}></FontAwesomeIcon></div>
         </HomeContainer>
       </Container>
     )
@@ -73,6 +76,26 @@ justify-content: center;
 align-item: center;
 width: 100%;
 height: 100vh;
+  .banner__btn-play{
+    display: flex;
+    justify-content: center;
+    align-items:center;
+    position:absolute;
+    top:120px;
+    right:40px;
+    border:1px solid #fff;
+    border-radius:2px;
+    width:40px;
+    height:40px;     
+    color:#fff;
+    font-size:24px;
+    cursor:pointer;
+    transition:all 0.3s linear;
+    &:hover{
+      border-color:var(--deepred);
+      color:var(--deepred);
+    }
+  }
 `;
 
 const HomeContainer = styled.div`

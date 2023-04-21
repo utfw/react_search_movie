@@ -15,7 +15,6 @@ import 'styles/app.css'
 import { onAuthStateChanged } from 'firebase/auth';
 import LoginPage from 'routes/LoginPage';
 
-
 const Layout = () => {
   return (
     <div>
@@ -29,28 +28,25 @@ const Layout = () => {
 function App() {
   const [login, setLogin] = useState(auth.currentUser);
   const [userInfo, setUserInfo] = useState(auth.currentUser);
+  
   useEffect(() =>{
     onAuthStateChanged(auth, (user) =>{
-    if(user) {
       setLogin(user);
       setUserInfo(user);
-    } else{
-      setLogin(false);
-      setUserInfo(false);
-    }
     })
     console.log(login)
-  },[login]);
+  },[login]); // 라우터 > 라우터로 되어있어서 시간이 걸리는듯. 
 
   return (
     <div className="app">
       <Routes>
-        <Route path='/' element={<Layout />}>
-          {!login ? (
-          <Route index element={<JoinPage></JoinPage>}/>
-          ):(
+        <Route path={`/`} element={<Layout />}>
+          { !login ? (
+          <Route index element={<JoinPage />}></Route>
+          ) : (
           <Route index element={<MainPage />}></Route>
-          )} 
+          )
+          }
           {/* index = 부모주소가져옴 */}
           <Route path=':movieId' element={<DetailPage />}></Route>
           {/* :으로 state 값을 넣어줄수있다.  */}

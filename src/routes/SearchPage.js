@@ -51,7 +51,8 @@ function SearchPage() {
                     <img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={movie.title} className='movie__poster' />
                     <div className='search-content'>
                       <h2 className='movie__title'>{movie.title || movie.name}</h2>
-                      <p>{movie.release_date ? movie.release_date : movie.first_air_date}</p>
+                      <p className='movie__release_date'>{movie.release_date ? movie.release_date : movie.first_air_date}</p>
+                      <p className='movie__score'>{parseInt(movie.popularity)}</p>
                     </div>
                   </div>
                   </div>
