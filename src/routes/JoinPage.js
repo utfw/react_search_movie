@@ -220,16 +220,11 @@ background:rgba(1,1,1,0.8);
         width:50%;
         height:50px;
         margin-bottom:16px;
-        padding:0 8px;
-        border:2px solid transparent;
-        border-radius:0 0 2px 2px;
-        background:#fff;
+        padding: 0 8px;
+        border-radius:8px;
+        box-sizing:border-box;
         outline:none;
-        transition:border 0.3s ease;
-        &:focus{
-          border:2px solid red;
-          border-top-color:transparent;
-        }
+        border:none;
       }
       .error{
         height:32px;
@@ -241,7 +236,7 @@ background:rgba(1,1,1,0.8);
         width:50%;
         height:60px;
         background:rgb(229, 9, 20);
-        border-radius:2px;
+        border-radius:8px;
         font-size:28px;
         font-weight:500;
         color:#fff;
