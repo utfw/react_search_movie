@@ -8,6 +8,7 @@ function LoginPage() {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const onChange = useCallback((e) =>{
     if(e.target.name==='id'){
@@ -26,24 +27,49 @@ function LoginPage() {
       navigate('/');
     } catch (error) {
       console.log(error);
+      let message="";
+      switch (error.code) {
+        case "auth/user-not-found" || "auth/wrong-password":
+          message = "이메일 혹은 비밀번호가 일치하지 않습니다.";
+          break;
+        case "auth/email-already-in-use":
+          message = "이미 사용 중인 이메일입니다.";
+          break;
+        case "auth/weak-password":
+          message = "비밀번호는 6글자 이상이어야 합니다.";
+          break;
+        case "auth/network-request-failed":
+          message = "네트워크 연결에 실패 하였습니다.";
+          break;
+        case "auth/invalid-email":
+          message = "잘못된 이메일 형식입니다.";
+          break;
+        case "auth/internal-error":
+          message = "잘못된 요청입니다.";
+          break;
+        default:
+          message = "로그인에 실패하였습니다.";
+          break;
+      }
+      setError(message);
     }
   },[id, pw]);
 
   return (
     <Login>
       <form onSubmit={onSubmit}>
-        <legend>로그인</legend>
-        <fieldset>
+      <fieldset>
+      <legend>로그인</legend>
         <input type='email' onChange={onChange} value={id} name='id'placeholder='이메일 주소' required />
         <input type='password' onChange={onChange} value={pw} name='pw' placeholder='비밀번호' required />
+        <p className='error'>{error}</p>
         <button type='submit'>로그인</button>
-        </fieldset>
-        <p>
-          Netflix 회원이 아닌가요? &nbsp;
-          <span onClick={() => {navigate('/')}} >지금 가입하세요.</span>
-        </p>
+      </fieldset>
+      <p>
+        Netflix 회원이 아닌가요? &nbsp;
+        <span onClick={() => {navigate('/')}} >지금 가입하세요.</span>
+      </p>
       </form>
-
     </Login>
   )
 }
@@ -83,9 +109,14 @@ form{
         color:#bbb;
       }
     }
+    .error{
+      height:32px;
+      margin-bottom:16px;
+      color:var(--red);
+      line-height:32px;
+    }
     button{
       height:60px;
-      margin-top:48px;
       margin-bottom:16px;
       border:none;
       border-radius:8px;

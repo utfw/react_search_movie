@@ -57,8 +57,8 @@ function Row({isLargeRow, title, id, fetchUrl}) {
           </span>
         </div> */}
         <div id={id} className='row__posters'>
-          {movies.map((movie) => (
-            <SwiperSlide>
+          {movies.map((movie,idx) => (
+            <SwiperSlide key={idx}>
               <img key={movie.id} onClick={() => handleClick(movie)} // 클릭하면 함수에 영화 정보를 입력. 익명함수가 아니라 바로 호출하면 자동적으로 실행된다. 
               className={`row__poster ${isLargeRow && ("row__posterLarge")}`}
               src={`https://image.tmdb.org/t/p/original/${isLargeRow ? movie.poster_path : movie.backdrop_path}`}

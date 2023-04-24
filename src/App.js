@@ -28,7 +28,8 @@ const Layout = () => {
 function App() {
   const [login, setLogin] = useState(auth.currentUser);
   const [userInfo, setUserInfo] = useState(auth.currentUser);
-  
+
+
   useEffect(() =>{
     onAuthStateChanged(auth, (user) =>{
       setLogin(user);
