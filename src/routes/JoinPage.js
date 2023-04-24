@@ -18,6 +18,7 @@ function JoinPage() {
   const [pw, setPw] = useState("");
   const navigate = useNavigate();
   const [movies, setMoives] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() =>{
     getMovie();
@@ -44,32 +45,59 @@ function JoinPage() {
     e.preventDefault();
     try {
       const join = await createUserWithEmailAndPassword(auth, id, pw);
-    } catch (error) {
-      console.log(error)
-    }
-    const q = query(collection(db, `${auth.currentUser.uid}`));
-    const docRef = await getDocs(q);
-    const profileNum = docRef.docs.length; // 갯수파악
-    console.log(docRef);
-    const fileName = uuid();
-    try {
-      const init = await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
-        displayname:`name_${uuid()}`,
-        fileName:fileName,
-        fileUrl:defaultFace,
-        date:Date.now()
-      });
+
+      const q = query(collection(db, `${auth.currentUser.uid}`));
+      const docRef = await getDocs(q);
+      const profileNum = docRef.docs.length; // 갯수파악
+      console.log(docRef);
+      const fileName = uuid();
+      try {
+        const init = await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
+          displayname:`name_${uuid()}`,
+          fileName:fileName,
+          fileUrl:defaultFace,
+          date:Date.now()
+        });
+        try {
+          const update = await updateProfile(auth.currentUser,{
+            displayName:`name_${uuid()}`, photoURL:defaultFace
+          });
+          console.log(auth.currentUser);
+        } catch (error) {
+          console.log(error);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     } catch (error) {
       console.log(error);
+      let message="";
+      switch (error.code) {
+        case "auth/user-not-found" || "auth/wrong-password":
+          message = "이메일 혹은 비밀번호가 일치하지 않습니다.";
+          break;
+        case "auth/email-already-in-use":
+          message = "이미 사용 중인 이메일입니다.";
+          break;
+        case "auth/weak-password":
+          message = "비밀번호는 6글자 이상이어야 합니다.";
+          break;
+        case "auth/network-request-failed":
+          message = "네트워크 연결에 실패 하였습니다.";
+          break;
+        case "auth/invalid-email":
+          message = "잘못된 이메일 형식입니다.";
+          break;
+        case "auth/internal-error":
+          message = "잘못된 요청입니다.";
+          break;
+        default:
+          message = "로그인에 실패하였습니다.";
+          break;
+      }
+      setError(message);
     }
-    try {
-      const update = await updateProfile(auth.currentUser,{
-        displayName:`name_${uuid()}`, photoURL:defaultFace
-      });
-      console.log(auth.currentUser);
-    } catch (error) {
-      console.log(error);
-    }
+
   },[id, pw]);
 
   return (
@@ -85,18 +113,19 @@ function JoinPage() {
         <p>다양한 디바이스에서 시청하세요. 언제든 해지하실 수 있습니다.</p>
         <p style={{marginTop:10}}>시청할 준비가 되셨나요? 멤버십을 등록하거나 재시작하려면 이메일 주소를 입력하세요.</p>
         <form onSubmit={onSubmit}>
-          <legend className='blind'>회원가입입력</legend>
-          <fieldset>
+        <fieldset>
+        <legend className='blind'>회원가입입력</legend>
           <input type='email' onChange={onChange} name='newId' required placeholder='이메일 주소'></input>
           <input type='password' onChange={onChange} name='newPw' required placeholder='비밀번호'></input>
+          <p className='error'>{error}</p>
           <button type='submit'>시작하기<FontAwesomeIcon icon={faChevronRight}></FontAwesomeIcon></button>
           </fieldset>
         </form>
-        </Join>
+      </Join>
         <div className='bg'>
           <ul>
-            {movies.map((movie) =>(
-              <li><img src={`https://image.tmdb.org/t/p/original/${movie.poster_path}`} alt={movie.title || movie.name || movie.original_name} /></li>
+            {movies.map((movie,index) =>(
+              <li key={index}><img src={`https://image.tmdb.org/t/p/original/${movie.poster_path}`} alt={movie.title || movie.name || movie.original_name} /></li>
             ))}
           </ul>
         </div>
@@ -183,10 +212,6 @@ color:#fff;
 background:rgba(1,1,1,0.8);
   form{
     margin:40px auto;
-    *{
-      margin:0;
-      padding:0;
-    }
     fieldset{
       border:none;
       display:flex;
@@ -195,17 +220,28 @@ background:rgba(1,1,1,0.8);
         width:50%;
         height:50px;
         margin-bottom:16px;
-        padding: 0 8px;
-        border-radius:8px;
-        box-sizing:border-box;
+        padding:0 8px;
+        border:2px solid transparent;
+        border-radius:0 0 2px 2px;
+        background:#fff;
         outline:none;
-        border:none;
+        transition:border 0.3s ease;
+        &:focus{
+          border:2px solid red;
+          border-top-color:transparent;
+        }
+      }
+      .error{
+        height:32px;
+        margin-bottom:16px;
+        color:var(--red);
+        line-height:32px;
       }
       button{
         width:50%;
         height:60px;
         background:rgb(229, 9, 20);
-        border-radius:8px;
+        border-radius:2px;
         font-size:28px;
         font-weight:500;
         color:#fff;

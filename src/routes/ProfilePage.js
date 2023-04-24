@@ -19,6 +19,9 @@ function ProfilePage() {
   const [faceBefore, setFaceBefore] = useState(""); 
   const [nameBefore, setNameBefore] = useState("");
   const [userProfiles, setUserProfiles] = useState([]);
+  const [alert, setAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   let profileInfo = {};
   let docSnapshot = [];
   const [fileName, setFileName] = useState(""); // 사실상 문서 id
@@ -130,7 +133,7 @@ function ProfilePage() {
     try {
       if(userProfiles.length-1!==0){
       await deleteDoc(doc(db, `${auth.currentUser.uid}`, `${fileName}`));
-      console.log(`프로필삭제`)
+      sendAlert(`프로필이 삭제되었습니다.`);
     } else console.log(`최소 1개의 프로필은 존재해야함`);
     } catch (error) {
       console.log(error)
@@ -146,7 +149,7 @@ function ProfilePage() {
   }
 
   async function onSelectProfile(idx) {
-    console.log(idx)
+    // console.log(idx)
     profileInfo = userProfiles[idx].data();
     const profile_list = document.querySelectorAll("li.profile");
     // profile_list.forEach((el,i)=>{
@@ -157,16 +160,27 @@ function ProfilePage() {
       const update = await updateProfile(auth.currentUser,{
         displayName:profileInfo.displayname, photoURL:profileInfo.fileUrl,
       });
-      console.log(auth.currentUser);
-      console.log(`프로필 변경완료`);
+      sendAlert(`프로필이 변경되었습니다.`);
     } catch (error) {
       console.log(error);
     }
-    navigate(`/`);
+  }
+  function sendAlert(text){
+    setAlertMessage(text);
+    setAlert(true);
+    const timer = setInterval(() => {
+      setAlert(false);
+      clearInterval(timer);
+    }, 500);
   }
   return (
     <ProfileContainer>
       <h2 className='blind'>프로필 관리</h2>
+      {alert && (     
+        // 알림창 
+        <AlertWindow> 
+          <p className='error'>{alertMessage}</p>
+        </AlertWindow>)}
       {isEditing ? (
         // 프로필 생성 / 설정 변경
         <EditProfile> 
@@ -228,12 +242,13 @@ function ProfilePage() {
           </form>
         </EditProfile>
       ):(
-        <Profiles>
+        // 기본
+        <Profiles> 
         <p className='profile__text'>Netflix를 시청할 프로필을 선택하세요.</p>
         <ul className='profile-wrap'>
           {userProfiles.map((profile,idx) =>{
               return(
-              <li className='profile' key={idx} onClick={()=>onSelectProfile(idx)}>
+              <li className='profile' key={idx} onClick={()=> edit===false && onSelectProfile(idx)}>
                 {edit && (
                   <div className='edit__btn' onClick={()=>onEditProfile(idx)}>
                     <span >
@@ -295,7 +310,6 @@ color:#fff;
             position:relative;
             width:80px;
             height:80px;
-
               .face{
                 width:100%;
                 height:100%;
@@ -304,7 +318,6 @@ color:#fff;
               input[type="file"]{
                 display:none;
               }
-
             .face__btn-edit{
               position:absolute;
               left:2px;
@@ -358,9 +371,7 @@ color:#fff;
             font-size:14px;
           }
         }
-
       }
-
       .form__btns-wrap{
         display:flex;
         width:100%;
@@ -380,7 +391,6 @@ color:#fff;
       }
     }
   }
-
 `
 // 디폴트 화면
 const Profiles = styled.div`
@@ -499,5 +509,24 @@ border-radius:8px;
     font-size:12px;
     color:#ccc;
     transform:translateY(100%);
+  }
+`
+
+const AlertWindow = styled.div`
+z-index:22;
+position:fixed;
+top:50%;
+left:50%;
+background:rgba(255,255,255,0.8);
+padding:20px 160px;
+box-sizing:border-box;
+border-radius:4px;
+transform:translate(-50%,-220%);
+  p{
+    color:#111;
+    transition:opacity 0.5s linear;
+    &.on{
+      opacity:1;
+    }
   }
 `

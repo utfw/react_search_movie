@@ -34,31 +34,35 @@ function DetailPage() {
     <>
     <Btn__nav onClick={() =>{navigate(-1)}}><FontAwesomeIcon icon={faArrowLeft}></FontAwesomeIcon></Btn__nav>
     <MovieDetail style={{backgroundImage:`url(https://image.tmdb.org/t/p/w500${movie.backdrop_path})`, backgroundSize:`cover`,backgroundRepeat:`no-repeat`}}>
-      <MoviePoster><img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={movie.title || movie.name || movie.original_name} /></MoviePoster>
-      <div className='section__inner'>
-      <div>
-        <h2>{movie.title || movie.name || movie.original_name}</h2>
-        <MovieInfo>
-          <li>{movie.release_date}</li>
-          <li>{`${movie.runtime}분`}</li>
-          <li>
-          <ul className='genres'>
-          {genres.map((item, index) =>{
-            return(
-              <li className='genres'>{item.name}</li>
-            )
-          })}
-          </ul>
-          </li>
-        </MovieInfo>
-        <MovieDescription>
-          <p>{movie?.overview}</p>
-        </MovieDescription>
+      <div className='section__wrap'>
+        <MoviePoster><img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={movie.title || movie.name || movie.original_name} /></MoviePoster>
+        <div className='section__right'>
+          <MovieVideo src={`https://www.youtube.com/embed/${movie.videos?.results[0].key}?controls=0&autoplay=1&loop=1&mute=1&playlist=${movie.videos?.results[0].key}`}>
+          </MovieVideo>
+          <div className='section__inner'>
+            <div>
+              <h2>{movie.title || movie.name || movie.original_name}</h2>
+              <MovieInfo>
+                <li>{movie.release_date}</li>
+                <li>{`${movie.runtime}분`}</li>
+                <li>
+                <ul className='genres'>
+                {genres.map((item, index) =>{
+                  return(
+                    <li className='genres'>{item.name}</li>
+                  )
+                })}
+                </ul>
+                </li>
+              </MovieInfo>
+              <MovieDescription>
+                <p>{movie?.overview}</p>
+              </MovieDescription>
+            </div>
+          </div>
+        </div>
       </div>
-      </div>
-
     </MovieDetail>
-
     </>
   )
 }
@@ -82,26 +86,40 @@ const Btn__nav = styled.div`
   }
 `
 const MovieDetail = styled.section`
+ position:relative;
+width:100%;
+min-height:100vh;
+color: #fff;
+.section__wrap{
   display:flex;
-  position:relative;
   justify-content:space-between;
   align-items:flex-end;
   width:100%;
-  min-height:100vh;
+  height:100vh;
   padding:80px 50px 80px 120px;
   box-sizing:border-box;
-  color: #fff;
-  .section__inner{
-    width:100%;
-    max-width:860px;
-    padding: 40px 32px 40px;
-    box-sizing:border-box;
-    background: #111;
-    h2{
-      padding-left:0;
-      font-size:28px;
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(5px);
+  .section__right{
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    height:100%;
+    .section__inner{
+      width:100%;
+      max-width:860px;
+      min-width:620px;
+      padding: 40px 32px 40px;
+      box-sizing:border-box;
+      background: #111;
+      box-shadow: 2px 2px 12px rgba(1,1,1,0.5);
+      h2{
+        padding-left:0;
+        font-size:28px;
+      }
     }
   }
+}
 `
 const MovieInfo = styled.ul`
   display:flex;
@@ -132,6 +150,15 @@ const MovieDescription =styled.div`
   font-size: 18px;
 `
 const MoviePoster = styled.div`
-height:50%;
+box-shadow: 2px 2px 12px rgba(1,1,1,0.5);
+height:100%;
+img{
+  height:100%;
+}
+`
+
+const MovieVideo = styled.iframe`
+flex:1;
+margin-bottom:20px;
 `
 export default DetailPage

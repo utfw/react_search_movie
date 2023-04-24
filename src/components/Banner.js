@@ -39,7 +39,7 @@ function Banner() {
           </h1>
           <div className='banner__buttons'>
             <button className='banner__button play' onClick={() => setIsClicked(true)}>
-              play
+              Play
             </button>
             <button className='banner__button info' onClick={()=>{navigate(`/${movie.id}`)}}>
               <div className='space'></div>More Information

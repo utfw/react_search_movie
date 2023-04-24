@@ -32,7 +32,6 @@ border-top:1px solid rgb(25,25,25);
 width:100%,
 position:relative;
 z-index:100;
-
 @media (max-width:768px){
   padding:20px 20px 30px;
 }
@@ -54,7 +53,6 @@ display:flex;
 justify-content:space-between;
 flex-wrap:wrap;
 margin-top:35px;
-
 @media (max-width:768px){
   margin-top:26px;
 }
@@ -66,7 +64,6 @@ text-decoration:none;
 color:gray;
 font-size:14px;
 margin-bottom:21px;
-
 &:hover{
   text-decoration: underline;
 }
