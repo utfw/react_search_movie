@@ -155,7 +155,8 @@ function ProfilePage() {
     // profile_list.forEach((el,i)=>{
     //   el.style.border = `2px solid #111`;
     // })
-    // profile_list[idx].style.border = `2px solid var(--deepred)`;
+    // profile_list[idx].style.borderBottomColor = `var(--deepred)`;
+    // // profile_list[idx].style.borderTopColor = `#111`;
     try {
       const update = await updateProfile(auth.currentUser,{
         displayName:profileInfo.displayname, photoURL:profileInfo.fileUrl,

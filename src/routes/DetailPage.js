@@ -37,8 +37,10 @@ function DetailPage() {
       <div className='section__wrap'>
         <MoviePoster><img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={movie.title || movie.name || movie.original_name} /></MoviePoster>
         <div className='section__right'>
+          {movie.videos && (
           <MovieVideo src={`https://www.youtube.com/embed/${movie.videos?.results[0].key}?controls=0&autoplay=1&loop=1&mute=1&playlist=${movie.videos?.results[0].key}`}>
           </MovieVideo>
+          )}
           <div className='section__inner'>
             <div>
               <h2>{movie.title || movie.name || movie.original_name}</h2>
@@ -86,8 +88,9 @@ const Btn__nav = styled.div`
   }
 `
 const MovieDetail = styled.section`
- position:relative;
+position:relative;
 width:100%;
+min-width:1320px;
 min-height:100vh;
 color: #fff;
 .section__wrap{
@@ -103,8 +106,9 @@ color: #fff;
   .section__right{
     display:flex;
     flex-direction:column;
-    justify-content:space-between;
+    justify-content:flex-end;
     height:100%;
+    margin-left:16px;
     .section__inner{
       width:100%;
       max-width:860px;

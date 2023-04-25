@@ -6,8 +6,6 @@ import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
-import Banner from 'components/Banner';
-import Row from 'components/Row';
 import axios from 'api/axios.js';
 import { collection, doc, getDocs, query, setDoc } from 'firebase/firestore';
 import { v4 as uuid } from 'uuid';
@@ -19,7 +17,8 @@ function JoinPage() {
   const navigate = useNavigate();
   const [movies, setMoives] = useState([]);
   const [error, setError] = useState("");
-
+  const [langMenu,setLangMenu] = useState(false);
+  const [language, setLanguage] = useState("한국어");
   useEffect(() =>{
     getMovie();
   },[])
@@ -99,12 +98,27 @@ function JoinPage() {
     }
 
   },[id, pw]);
-
+  const onLangClick = useCallback((e) =>{
+    console.log(e.target);
+    setLanguage(`${e.target.innerText}`);
+    setLangMenu(false);
+  },[langMenu])
   return (
     <Container>
       <Top_menu>
         <dt className='blind'>탑메뉴</dt>
-        <dd className='lang'>한국어<span></span></dd>
+        <dd className='lang'>
+          <ul>
+          <li onClick={()=>{setLangMenu(prev=>!prev)}}>
+          {language}<span></span>
+          </li>
+          {langMenu && (
+          <>
+          <li onClick={onLangClick}>한국어</li>
+          <li onClick={onLangClick}>영어</li>
+          </>
+          )}
+          </ul></dd>
         <dd onClick={() => {navigate('login')}} className='login'>로그인</dd>
       </Top_menu>
       <Join>
@@ -137,7 +151,7 @@ function JoinPage() {
 const Container = styled.div`
 padding-top: 120px;
 width:100%;
-height:calc(100vh - 228px);
+height:calc(100vh - 174px);
 background: #111;
 box-sizing:border-box;
   .blind{
@@ -184,19 +198,37 @@ right:50px;
     cursor:pointer;
     &.lang{
       margin-right:20px;
-      span{
-        width:12px;
-        height:100%;
-        padding-left:4px;
-        &:after{
-        content:"";
-        display:inline-block;
-        width:0;
-        border:none;
-        border-left:8px solid transparent;
-        border-bottom:8px solid #fff;
-        transform:rotate(45deg) translateY(-50%);
+      ul{
+        height:30px;
+        li{
+          display:flex;
+          justify-content:space-between;
+          position:relative;
+          top:0;
+          left:0;
+          width:100px;
+          height:30px;
+          padding:4px 16px;
+          box-sizing:border-box;
+          &:hover{
+            color:#bbb;
+          }
+          span{
+            width:12px;
+            height:100%;
+            padding-left:4px;
+            &:after{
+            content:"";
+            display:inline-block;
+            width:0;
+            border:none;
+            border-left:8px solid transparent;
+            border-bottom:8px solid #fff;
+            transform:rotate(45deg) translateY(-50%);
+            }
         }
+      }
+     
       }
     }
   }
@@ -206,7 +238,7 @@ z-index:11;
 position:absolute;
 width:auto;
 top:16%;
-right:16px;
+right:0;
 padding: 32px;
 color:#fff;
 background:rgba(1,1,1,0.8);
@@ -221,10 +253,14 @@ background:rgba(1,1,1,0.8);
         height:50px;
         margin-bottom:16px;
         padding: 0 8px;
-        border-radius:8px;
+        border-radius:0 0 2px 2px;
         box-sizing:border-box;
         outline:none;
-        border:none;
+        border:2px solid transparent;
+        &:focus{
+          border-bottom-color:var(--red);
+          
+        }
       }
       .error{
         height:32px;
@@ -236,7 +272,7 @@ background:rgba(1,1,1,0.8);
         width:50%;
         height:60px;
         background:rgb(229, 9, 20);
-        border-radius:8px;
+        border-radius:2px;
         font-size:28px;
         font-weight:500;
         color:#fff;

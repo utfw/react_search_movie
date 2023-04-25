@@ -53,6 +53,8 @@ function SearchPage() {
                       <h2 className='movie__title'>{movie.title || movie.name}</h2>
                       <p className='movie__release_date'>{movie.release_date ? movie.release_date : movie.first_air_date}</p>
                       <p className='movie__score'>{parseInt(movie.popularity)}</p>
+
+                     <p className='movie__vote'>평점 : <span>{Math.round(movie.vote_average*10)/10}</span></p>
                     </div>
                   </div>
                   </div>

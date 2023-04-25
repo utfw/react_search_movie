@@ -105,13 +105,11 @@ form{
       border-radius:0 0 2px 2px;
       background:#fff;
       outline:none;
-      transition:border 0.3s ease;
       &::placeholder{
         color:#bbb;
       }
       &:focus{
-        border:2px solid red;
-        border-top-color:transparent;
+        border-bottom-color:var(--red);
       }
     }
     .error{
