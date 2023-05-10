@@ -13,7 +13,7 @@ function Banner() {
   const navigate = useNavigate();
   useEffect(()=>{
     fetchData();
-    console.log(movie.id);
+    // console.log(movie.id);
   },[])
 
   const fetchData = async() =>{
@@ -25,6 +25,7 @@ function Banner() {
     const {data:movieDetail} = await axios.get(`/movie/${movieId}`,{params:{append_to_response: "videos"}});
   // console.log(movieDetail);
   setMovie(movieDetail);
+  console.log(movieDetail);
   }
   const turncate = (text, length) =>{
     return text?.length > length ? text.substr(0, length-1) + '...' : text; 

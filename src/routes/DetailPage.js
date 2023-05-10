@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 function DetailPage() {
-  const [movie, setMovie] = useState({});
+  const [movie, setMovie] = useState([]);
   let {movieId} = useParams(); // 주소창 중 파라미터를 가져옴
   const [genres, setGenres] = useState([]);
   const navigate = useNavigate();
@@ -16,20 +16,22 @@ function DetailPage() {
   const fetchData = async() =>{
     try {
       const request = await axios.get(`/movie/${movieId}`);
-    
+      const {data:movieDetail} = await axios.get(`/movie/${movieId}`,{params:{append_to_response: "videos"}});
       if(false){   // 이미지가 존재하는지 조건을 걸어야함. 
         const imgRequest = await axios.get(`/movie/${movieId}/image`);
         console.log(imgRequest) 
       }
-      setMovie(request.data);
+      setMovie(movieDetail);
       setGenres(request.data.genres);
-      console.log(request.data)
+      console.log(movieDetail)
+      // console.log(request.data)
     } catch (error) {
       console.log(error);
     }
   }
 
   if(!movie) return <div>...loading</div>
+  else{
   return (
     <>
     <Btn__nav onClick={() =>{navigate(-1)}}><FontAwesomeIcon icon={faArrowLeft}></FontAwesomeIcon></Btn__nav>
@@ -37,10 +39,12 @@ function DetailPage() {
       <div className='section__wrap'>
         <MoviePoster><img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={movie.title || movie.name || movie.original_name} /></MoviePoster>
         <div className='section__right'>
-          {movie.videos && (
-          <MovieVideo src={`https://www.youtube.com/embed/${movie.videos?.results[0].key}?controls=0&autoplay=1&loop=1&mute=1&playlist=${movie.videos?.results[0].key}`}>
-          </MovieVideo>
-          )}
+        {movie.videos?.results && (
+        <MovieVideo
+          src={`https://www.youtube.com/embed/${movie.videos.results[0]?.key}?controls=0&autoplay=1&loop=1&mute=1&playlist=${movie.videos.results[0]?.key}`}
+          allow='autoplay; fullscreen'/>
+        )
+        }
           <div className='section__inner'>
             <div>
               <h2>{movie.title || movie.name || movie.original_name}</h2>
@@ -68,6 +72,7 @@ function DetailPage() {
     </>
   )
 }
+}
 
 
 const Btn__nav = styled.div`
@@ -94,7 +99,7 @@ min-width:1320px;
 min-height:100vh;
 color: #fff;
 .section__wrap{
-  display:flex;
+  display:inline-flex;
   justify-content:space-between;
   align-items:flex-end;
   width:100%;
@@ -104,6 +109,7 @@ color: #fff;
   background:rgba(0,0,0,.8);
   backdrop-filter:blur(5px);
   .section__right{
+    flex:1;
     display:flex;
     flex-direction:column;
     justify-content:flex-end;
@@ -163,7 +169,9 @@ img{
 
 const MovieVideo = styled.iframe`
 flex:1;
+width:100%;
 margin-bottom:20px;
+border:none;
 `
 export default DetailPage
 
