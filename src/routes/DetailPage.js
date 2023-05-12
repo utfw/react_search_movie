@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import 'styles/detail.css'
+import 'styles/layout.css'
 
 function DetailPage() {
   const [movie, setMovie] = useState([]);
@@ -117,7 +117,6 @@ color: #fff;
     margin-left:16px;
     .section__inner{
       width:100%;
-      min-width:620px;
       padding: 40px 32px 40px;
       box-sizing:border-box;
       background: #111;

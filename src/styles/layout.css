@@ -1,0 +1,50 @@
+@media screen and (max-width:1024px) {
+  .section__wrap{
+    padding: 16px !important;  
+  }
+  .section__wrap>div:first-child{
+    display: none;
+  }
+  .section__right{
+    margin-left: 0 !important;
+  }
+  
+}
+
+@media screen and (max-width: 768px) {
+  .form{
+    width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+  }
+  .form>fieldset{
+    width: 100% !important;
+  }
+  .form input,.form button{
+    width: auto !important;
+  }
+  .movie{
+    display: block !important;
+  }
+  .movies__searched{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .movie__bg{
+    height: auto !important;
+    width: 100%;
+  }
+  .movies__searched:hover .movie-wrap img{width: 0%;}
+  .search-content{
+    padding: 16px !important;
+    margin: 0 !important;
+  }
+  .movie__score{
+    right: 38px !important;
+  }
+
+  .profile__text{
+    padding: 0 16px;
+  }
+}

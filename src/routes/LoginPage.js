@@ -3,6 +3,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import 'styles/layout.css'
 
 function LoginPage() {
   const [id, setId] = useState("");
@@ -57,7 +58,7 @@ function LoginPage() {
 
   return (
     <Login>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} className='form'>
       <fieldset>
       <legend>로그인</legend>
         <input type='email' onChange={onChange} value={id} name='id'placeholder='이메일 주소' required />
@@ -77,7 +78,7 @@ function LoginPage() {
 export default LoginPage
 
 const Login = styled.div`
-height:calc(100vh - 228px);
+height:100vh;
 position:relative;
 form{
   position:absolute;

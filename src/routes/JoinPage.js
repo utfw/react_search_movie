@@ -10,6 +10,7 @@ import axios from 'api/axios.js';
 import { collection, doc, getDocs, query, setDoc } from 'firebase/firestore';
 import { v4 as uuid } from 'uuid';
 import { defaultFace } from 'default';
+import 'styles/layout.css'
 
 function JoinPage() {
   const [id, setId] = useState("");
@@ -44,7 +45,6 @@ function JoinPage() {
     e.preventDefault();
     try {
       const join = await createUserWithEmailAndPassword(auth, id, pw);
-
       const q = query(collection(db, `${auth.currentUser.uid}`));
       const docRef = await getDocs(q);
       const profileNum = docRef.docs.length; // 갯수파악
@@ -125,8 +125,8 @@ function JoinPage() {
         <h2 className='blind'>회원가입</h2>
         <p style={{fontSize:40, fontWeight:`bold`,marginBottom:20}}><strong>영화와 시리즈를 무제한으로.</strong></p>
         <p>다양한 디바이스에서 시청하세요. 언제든 해지하실 수 있습니다.</p>
-        <p style={{marginTop:10}}>시청할 준비가 되셨나요? 멤버십을 등록하거나 재시작하려면 이메일 주소를 입력하세요.</p>
-        <form onSubmit={onSubmit}>
+        <p style={{marginTop:10, marginBottom:10}}>시청할 준비가 되셨나요? 멤버십을 등록하거나 재시작하려면 이메일 주소를 입력하세요.</p>
+        <form onSubmit={onSubmit} className='form'>
         <fieldset>
         <legend className='blind'>회원가입입력</legend>
           <input type='email' onChange={onChange} name='newId' required placeholder='이메일 주소'></input>
@@ -160,9 +160,9 @@ box-sizing:border-box;
   .bg{
     overflow:hidden;
     position:absolute;
+    max-height:50vh;
     bottom:50vh;
     left:0;
-    min-width:920px;
     transform:translateY(50%);
     ul{
       display:flex;
