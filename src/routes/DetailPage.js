@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import 'styles/detail.css'
 
 function DetailPage() {
   const [movie, setMovie] = useState([]);
@@ -74,7 +75,6 @@ function DetailPage() {
 }
 }
 
-
 const Btn__nav = styled.div`
   position:fixed;
   display:flex;
@@ -95,7 +95,7 @@ const Btn__nav = styled.div`
 const MovieDetail = styled.section`
 position:relative;
 width:100%;
-min-width:1320px;
+
 min-height:100vh;
 color: #fff;
 .section__wrap{
@@ -117,7 +117,6 @@ color: #fff;
     margin-left:16px;
     .section__inner{
       width:100%;
-      max-width:860px;
       min-width:620px;
       padding: 40px 32px 40px;
       box-sizing:border-box;

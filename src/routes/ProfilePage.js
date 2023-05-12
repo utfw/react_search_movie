@@ -24,8 +24,7 @@ function ProfilePage() {
 
   let profileInfo = {};
   let docSnapshot = [];
-  const [fileName, setFileName] = useState(""); // 사실상 문서 id
-
+  const [fileName, setFileName] = useState("");
   useEffect(()=>{
     getProfiles()    
   },[])
@@ -35,7 +34,6 @@ function ProfilePage() {
     const querySnapshot = await getDocs(q);
     docSnapshot = querySnapshot.docs;
     setUserProfiles(docSnapshot);
-
   }
   if(userProfiles==""){
     console.log(`페이지 로딩 시 프로필 불러오기`);
@@ -61,10 +59,11 @@ function ProfilePage() {
   
   const onSubmit = async(e) =>{
     e.preventDefault();
-    // 이게 새로운 프로필인지 기존의 프로필인지 조건을 따지기 귀찮으니 차라리 접근을 제한.
+    const {target:{files}} = e;
+    
     let fileUrl;
+    if(files == undefined) fileUrl = newFace;
     const storageRef = ref(storage, `${auth.currentUser.uid}/profile/${fileName}`);
-    if(faceBefore !== newFace){ //이미지 변경이 있을 시 사진 업로드 진행
       try {
         const upload = await uploadString(storageRef, newFace, 'data_url');
         fileUrl = await getDownloadURL(ref(storage, upload.ref));
@@ -72,20 +71,12 @@ function ProfilePage() {
       } catch (error) {
         console.log(error);
       }
-    }
-    if(nameBefore !== newName){ // 프로필 정보 문서 업로드
-      try { 
-        await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
-          displayname:newName,
-          fileName:fileName,
-          fileUrl:fileUrl
-        })
-      } catch (error) {
-        console.log(error)
-      }
-    }
-    console.log(fileUrl)
-    console.log(`${newName} submit done`);
+      await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
+        displayname:newName,
+        fileName:fileName,
+        fileUrl:fileUrl
+      })
+
     setIsEditing(prev=>!prev);
     setEdit(prev=>!prev);
     getProfiles();
@@ -149,17 +140,13 @@ function ProfilePage() {
   }
 
   async function onSelectProfile(idx) {
-    // console.log(idx)
     profileInfo = userProfiles[idx].data();
     const profile_list = document.querySelectorAll("li.profile");
-    // profile_list.forEach((el,i)=>{
-    //   el.style.border = `2px solid #111`;
-    // })
-    // profile_list[idx].style.borderBottomColor = `var(--deepred)`;
-    // // profile_list[idx].style.borderTopColor = `#111`;
+    console.log(profileInfo.fileUrl)
     try {
       const update = await updateProfile(auth.currentUser,{
-        displayName:profileInfo.displayname, photoURL:profileInfo.fileUrl,
+        displayName:profileInfo.displayname, 
+        photoURL:profileInfo.fileUrl,
       });
       sendAlert(`프로필이 변경되었습니다.`);
     } catch (error) {
@@ -217,7 +204,6 @@ function ProfilePage() {
                       <dd>모든 관람등급</dd>
                       <dd>이 프로필에서는 모든 관람등급의 콘텐츠가 표시됩니다.</dd>
                     </dl>
-                    {/* 어떻게 등급에 따라 설명을 바꾸고 설명을 뭐로 태그할 것인가. */}
                   </div>
                   <div className='form__content-bottom'>
                     <dl>

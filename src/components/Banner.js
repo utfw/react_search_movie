@@ -22,7 +22,7 @@ function Banner() {
     const movieId = request.data.results[
       Math.floor(Math.random()*request.data.results.length)
     ].id;
-    const {data:movieDetail} = await axios.get(`/movie/${movieId}`,{params:{append_to_response: "videos"}});
+    const {data:movieDetail} = await axios.get(`/movie/${447365}`,{params:{append_to_response: "videos"}});
   // console.log(movieDetail);
   setMovie(movieDetail);
   console.log(movieDetail);

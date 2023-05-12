@@ -1,1 +1,1 @@
-export const defaultFace = "https://occ-0-4796-988.1.nflxso.net/dnm/api/v6/K6hjPJd6cR6FpVELC5Pd6ovHRSk/AAAABbme8JMz4rEKFJhtzpOKWFJ_6qX-0y5wwWyYvBhWS0VKFLa289dZ5zvRBggmFVWVPL2AAYE8xevD4jjLZjWumNo.png?r=a41";
+export const defaultFace = "https://firebasestorage.googleapis.com/v0/b/react-38f4d.appspot.com/o/default.png?alt=media&token=ae100b0e-028c-46d0-a86d-42a92718f807";
