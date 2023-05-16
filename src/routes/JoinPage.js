@@ -52,7 +52,7 @@ function JoinPage() {
       const fileName = uuid();
       try {
         const init = await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
-          displayname:`name_${uuid()}`,
+          displayname:`name_${uuid().slice(0,7)}`,
           fileName:fileName,
           fileUrl:defaultFace,
           date:Date.now()

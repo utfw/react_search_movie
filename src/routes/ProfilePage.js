@@ -103,7 +103,7 @@ function ProfilePage() {
       // add profile
       try {
         await setDoc(doc(db,`${auth.currentUser.uid}`,`${fileName}`),{
-          displayname:`name_${uuid()}`,
+          displayname:`name_${uuid().slice(0,7)}`,
           fileName:fileName,
           fileUrl:defaultFace,
           date:Date.now()
